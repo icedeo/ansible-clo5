@@ -1,0 +1,17 @@
+---
+
+- name: uninstall tick_chronograf
+  become: yes
+  shell: docker service rm tick_chronograf
+
+- name: uninstall tick_influxdb
+  become: yes
+  shell: docker service rm tick_influxdb
+
+- name: uninstall tick_kapacitor
+  become: yes
+  shell: docker service rm tick_kapacitor
+
+- name: uninstall tick_telegraf
+  become: yes
+  shell: docker service rm tick_telegraf

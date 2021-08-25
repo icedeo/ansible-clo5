@@ -1,0 +1,60 @@
+--- 
+
+- name: install packages to allow apt to use a repository over HTTPS
+  become: yes
+  shell: apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release -y
+
+- name: Add Docker’s official GPG key
+  become: yes
+  shell: curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg --y
+
+- name: add a stable repository
+  become: yes
+  shell: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+- name: Make sure you are about to install from the Docker repo instead of the default Debian repo
+  shell: apt-cache policy docker-ce
+
+- name: install docker
+  become: yes
+  shell: apt install docker-ce -y
+
+- name: test du docker
+  become: yes
+  shell: docker run hello-world
+  register: result
+  
+- debug: msg="{{ result.stdout }}"
+
+- name: install python part1
+  become: yes
+  shell: apt-get install wget build-essential checkinstall -y
+
+
+- name: install python part2
+  become: yes
+  shell: apt-get install python3
+
+
+- name: pip install docker 1
+  become: yes
+  shell: apt-get install python3-pip -y
+
+
+- name: pip install docker
+  become: yes
+  shell: python3 -m pip install docker
+
+
+- name: install docker-compose
+  become: yes
+  shell: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+- name: apply executable docker-compose
+  become: yes
+  shell: chmod +x /usr/local/bin/docker-compose

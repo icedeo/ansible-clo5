@@ -1,0 +1,14 @@
+---
+
+- name: docker swarm leave
+  become: yes
+  shell: docker swarm leave --force
+  ignore_errors: yes
+
+- name: kill all container and remove them
+  become: yes
+  shell: docker stop registry && docker container prune -f && docker image prune -f && docker volume prune -f && docker network prune -f && docker system prune -f
+
+- name: unistall docker
+  become: yes
+  shell: python3 -m pip uninstall docker -y

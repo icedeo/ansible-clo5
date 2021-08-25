@@ -1,0 +1,25 @@
+---
+
+- name: Remove tickstack
+  hosts: all
+  tasks:
+   - name: run the uninstall task for tickstack
+     include_role:
+       name: docker_tickstack
+       tasks_from: uninstall
+
+- name: Remove git
+  hosts: swarm-manager
+  tasks:
+   - name: run the uninstall task for git
+     include_role:
+       name: git_deploy
+       tasks_from: uninstall
+
+- name: Remove Docker
+  hosts: all
+  tasks:
+   - name: run the uninstall task for Docker
+     include_role:
+       name: docker_swarm
+       tasks_from: uninstall

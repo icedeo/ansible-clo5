@@ -1,0 +1,6 @@
+---
+# tasks file for docker_registry
+- name: initialize registry
+  become: yes
+  shell: docker container stop registry && docker container rm -v registry
+

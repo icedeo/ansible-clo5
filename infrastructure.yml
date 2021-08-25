@@ -1,0 +1,57 @@
+---
+
+- name: Install env for docker
+  hosts: all
+
+  tasks:
+   - name: Run tasks/other.yaml instead of 'main'
+     include_role:
+       name: docker_swarm
+       tasks_from: install_docker
+
+- name: initialize the swarm
+  become: yes
+  hosts: swarm-manager
+  tasks:
+  - name: initialize the node
+    include_role:
+      name: docker_swarm
+      tasks_from: docker-swarm-init
+
+
+- name: add docker worker joining tasks
+  become: yes
+  hosts: swarm-worker
+  tasks:
+  - name: add docker worker joining tasks
+    include_role:
+      name: docker_swarm
+      tasks_from: docker-swarm-add_worker_swarm
+
+- name: initialize registry
+  become: yes
+  hosts: swarm-manager
+  tasks:
+  - name: initialize registry
+    include_role:
+      name: docker_registry
+      tasks_from: init_registry
+
+
+- name: push all images tick to registry
+  become: yes
+  hosts: swarm-manager
+  tasks:
+  - name: push all images tick to registry
+    include_role:
+      name: docker_tickstack
+      tasks_from: main
+
+- name: deploy telegraf conf
+  become: yes
+  hosts: swarm-manager
+  tasks:
+  - name: deploy the telegraf conf
+    include_role:
+      name: docker_tickstack
+      tasks_from: deploy_telegraf_conf

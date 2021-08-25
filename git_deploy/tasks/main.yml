@@ -1,0 +1,21 @@
+---
+
+- name: Install and configure the necessary dependencies
+  become: yes
+  shell: apt-get install -y curl openssh-server ca-certificates perl
+  tags: gitlab
+
+- name: Add the GitLab package repository and install the package
+  become: yes
+  shell: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | bash
+  tags: gitlab
+
+- name: install gitlab-ee
+  become: yes
+  shell: EXTERNAL_URL="https://gitlab.example.com" apt-get install gitlab-ee -y
+  tags: gitlab
+
+- name: rails console create 1st user
+  become: yes
+  shell: gitlab-rails runner "User.create!(:username => 'test', :password => 'P@SSW0RD', :password_confirmation => 'P@SSW0RD', :admin => true, :email => 'test@test.net', :name => 'user test')"
+  tags: gitlab

@@ -1,0 +1,10 @@
+---
+
+- name: Install Gitlab
+  hosts: swarm-manager
+  tasks:
+  - name: Install Gitlab
+    include_role:
+      name: git_deploy
+      tasks_from: main
+

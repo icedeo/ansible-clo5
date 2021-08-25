@@ -1,0 +1,74 @@
+---
+
+- name: pull latest version influxdb
+  become: yes
+  shell: docker pull influxdb:1.2
+
+- name: pull latest version chronograf
+  become: yes
+  shell: docker pull chronograf:1.3
+
+- name: pull latest version telegraf
+  become: yes
+  shell: docker pull telegraf:1.3
+
+- name: pull latest version kapacitor
+  become: yes
+  shell: docker pull kapacitor:1.2
+
+
+- name: collect image id for unfluxdb
+  become: yes
+  shell: docker images --filter="reference=influxdb" --quiet
+  register: image_tag_influxdb
+
+- name: collect image id for chronograf
+  become: yes
+  shell: docker images --filter="reference=chronograf" --quiet
+  register: image_tag_chronograf
+
+- name: collect image id for telegraf
+  become: yes
+  shell: docker images --filter="reference=telegraf" --quiet
+  register: image_tag_telegraf
+
+- name: collect image id for kapacitor
+  become: yes
+  shell: docker images --filter="reference=kapacitor" --quiet
+  register: image_tag_kapacitor
+
+- name: tag influxdb image to repo
+  become: yes
+  shell: docker image tag influxdb:1.2 localhost:5000/myadmin/influxdb:1.2
+
+- name: tag chronograf image to repo
+  become: yes
+  shell: docker image tag chronograf:1.3 localhost:5000/myadmin/chronograf:1.3
+
+- name: tag telegraf image to repo
+  become: yes
+  shell: docker image tag telegraf:1.3 localhost:5000/myadmin/telegraf:1.3
+
+- name: tag kapacitor image to repo
+  become: yes
+  shell: docker image tag kapacitor:1.2 localhost:5000/myadmin/kapacitor:1.2
+
+
+- name: push influxdb image
+  become: yes
+  shell: docker image push localhost:5000/myadmin/influxdb:1.2
+
+- name: push chronograf image
+  become: yes
+  shell: docker image push localhost:5000/myadmin/chronograf:1.3
+
+- name: push telegraf image
+  become: yes
+  shell: docker image push localhost:5000/myadmin/telegraf:1.3
+
+- name: push kapacitor image
+  become: yes
+  shell: docker image push localhost:5000/myadmin/kapacitor:1.2
+
+
+
