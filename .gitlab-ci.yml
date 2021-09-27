@@ -41,7 +41,7 @@ preprod_deploy:
     entrypoint: [""]
   script:
     - mkdir -p /kaniko/.docker
-    - /kaniko/executor --context ./ --dockerfile ./Dockerfile --destination 172.16.233.87:5000/myadmin/api-back:preprod
+    - /kaniko/executor --context ./ --dockerfile ./Dockerfile --destination [address]:5000/myadmin/api-back:preprod
 
 deploy_on_preprod:
   image: alpine
@@ -53,7 +53,7 @@ deploy_on_preprod:
   script:
     - apk add openssh-client
     - apk add sshpass
-    - sshpass -p 'belin974' ssh -oStrictHostKeyChecking=no $SSH_USER@$SSH_HOST -t "sudo docker service update api_latest"
+    - sshpass -p [password] ssh -oStrictHostKeyChecking=no $SSH_USER@$SSH_HOST -t "sudo docker service update api_latest"
 
 test_deploy:
   stage: On pré-prod:Deploy on pré-prod server
@@ -78,7 +78,7 @@ Deploy_latest_on_registry:
     entrypoint: [""]
   script:
     - mkdir -p /kaniko/.docker
-    - /kaniko/executor --context ./ --dockerfile ./Dockerfile --destination 172.16.233.87:5000/myadmin/api-back:latest
+    - /kaniko/executor --context ./ --dockerfile ./Dockerfile --destination [address]:5000/myadmin/api-back:latest
 
 deploy_on_main:
   image: alpine
@@ -90,4 +90,4 @@ deploy_on_main:
   script:
     - apk add openssh-client
     - apk add sshpass
-    - sshpass -p 'belin974' ssh -oStrictHostKeyChecking=no $SSH_USER@$SSH_HOST -t "sudo docker service update api_latest"
+    - sshpass -p [password] ssh -oStrictHostKeyChecking=no $SSH_USER@$SSH_HOST -t "sudo docker service update api_latest"
