@@ -1,0 +1,93 @@
+image: tiangolo/uvicorn-gunicorn:python3.8
+
+before_script:
+  - echo "test"
+
+stages:          # Lists of stages for jobs, and their order of execution
+  - Basic test:Static Analysis
+  - Basic test:Unit testing
+  - Deploy preprod
+  - On pré-prod:Deploy on pré-prod server
+  - On ré-prod:Run docker
+  - On pré-prod:Test Fonc
+  - Deploy prod
+  - On prod:Test bleu green
+
+pylint:       # This job runs in the build stage, which runs first.
+  stage: Basic test:Static Analysis
+  script:
+    - export VIRTUAL_ENV=/opt/venv
+    - python -m venv $VIRTUAL_ENV
+    - export PATH="$VIRTUAL_ENV/bin:$PATH"
+    - pip install -r requirements.txt
+    - pylint -d C0114,C0115,C0116,C0103 app/*.py || exit 0
+
+pytest:
+  stage: Basic test:Unit testing
+  script:
+    - export VIRTUAL_ENV=/opt/venv
+    - python -m venv $VIRTUAL_ENV
+    - export PATH="$VIRTUAL_ENV/bin:$PATH"
+    - pip install -r requirements.txt
+    - cd app
+    - pytest -v tests
+
+preprod_deploy:
+  stage: Deploy preprod
+  only:
+    - main
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - /kaniko/executor --context ./ --dockerfile ./Dockerfile --destination 172.16.233.87:5000/myadmin/api-back:preprod
+
+deploy_on_preprod:
+  image: alpine
+  stage: On ré-prod:Run docker
+  variables:
+    SHHPASS: ''
+  only:
+    - main
+  script:
+    - apk add openssh-client
+    - apk add sshpass
+    - sshpass -p 'belin974' ssh -oStrictHostKeyChecking=no $SSH_USER@$SSH_HOST -t "sudo docker service update api_latest"
+
+test_deploy:
+  stage: On pré-prod:Deploy on pré-prod server
+  only:
+    - main
+  script:
+    - echo "on déploie sur le serveur"
+
+test_fonc:
+  stage: On pré-prod:Test Fonc
+  only:
+    - main
+  script:
+    - echo "Lancement les tests fonctionels"
+
+Deploy_latest_on_registry:
+  stage: Deploy prod
+  only:
+    - main
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - /kaniko/executor --context ./ --dockerfile ./Dockerfile --destination 172.16.233.87:5000/myadmin/api-back:latest
+
+deploy_on_main:
+  image: alpine
+  stage: On prod:Test bleu green
+  variables:
+    SHHPASS: ''
+  only:
+    - main
+  script:
+    - apk add openssh-client
+    - apk add sshpass
+    - sshpass -p 'belin974' ssh -oStrictHostKeyChecking=no $SSH_USER@$SSH_HOST -t "sudo docker service update api_latest"
